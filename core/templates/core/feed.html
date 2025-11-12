@@ -1,0 +1,89 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Стрічка{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <!-- Форма створення посту -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Що нового?</h5>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.content }}
+                    <div class="mt-2">
+                        {{ form.image }}
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2">
+                        <i class="bi bi-send"></i> Опублікувати
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Пости -->
+        {% for post in posts %}
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    {% if post.author.profile.avatar %}
+                        <img src="{{ post.author.profile.avatar.url }}" class="rounded-circle avatar me-2" alt="avatar">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                            {{ post.author.username|first|upper }}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <a href="{% url 'profile' post.author.username %}" class="text-decoration-none fw-bold text-dark">
+                            {{ post.author.username }}
+                        </a>
+                        <div class="small text-muted">{{ post.created_at|timesince }} тому</div>
+                    </div>
+                    {% if post.author == user %}
+                    <div class="ms-auto">
+                        <a href="{% url 'delete_post' post.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Видалити пост?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="post-content mb-3">{{ post.content }}</div>
+
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" class="img-fluid rounded mb-3" alt="post image">
+                {% endif %}
+
+                <div class="d-flex gap-3 border-top pt-2">
+                    <a href="{% url 'like_post' post.pk %}" class="btn btn-sm btn-link text-decoration-none">
+                        <i class="bi {% if user in post.likes.all %}bi-heart-fill text-danger{% else %}bi-heart{% endif %}"></i>
+                        {{ post.likes_count }}
+                    </a>
+                    <a href="{% url 'post_detail' post.pk %}" class="btn btn-sm btn-link text-decoration-none">
+                        <i class="bi bi-chat"></i> {{ post.comments.count }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="card">
+            <div class="card-body text-center text-muted">
+                <p>Поки немає постів у стрічці</p>
+                <p>Підпишіться на користувачів, щоб бачити їх пости!</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+        resize: vertical;
+    }
+</style>
+{% endblock %}

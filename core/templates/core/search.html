@@ -1,0 +1,67 @@
+={% extends 'core/base.html' %}
+
+{% block title %}Пошук{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="mb-4">Пошук користувачів</h3>
+
+                <form method="get" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Введіть ім'я користувача..." value="{{ query }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Шукати
+                        </button>
+                    </div>
+                </form>
+
+                {% if query %}
+                    {% if users %}
+                        <h5 class="mb-3">Результати пошуку:</h5>
+                        {% for user_item in users %}
+                        <div class="d-flex align-items-center p-3 border-bottom">
+                            {% if user_item.profile.avatar %}
+                                <img src="{{ user_item.profile.avatar.url }}" class="rounded-circle avatar me-3" alt="avatar">
+                            {% else %}
+                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    {{ user_item.username|first|upper }}
+                                </div>
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <a href="{% url 'profile' user_item.username %}" class="text-decoration-none fw-bold text-dark">
+                                    {{ user_item.username }}
+                                </a>
+                                {% if user_item.first_name or user_item.last_name %}
+                                    <div class="small text-muted">{{ user_item.first_name }} {{ user_item.last_name }}</div>
+                                {% endif %}
+                                {% if user_item.profile.bio %}
+                                    <div class="small text-muted">{{ user_item.profile.bio|truncatewords:15 }}</div>
+                                {% endif %}
+                            </div>
+                            {% if user_item != user %}
+                                <a href="{% url 'profile' user_item.username %}" class="btn btn-sm btn-outline-primary">
+                                    Переглянути профіль
+                                </a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-search" style="font-size: 3rem;"></i>
+                            <p class="mt-3">Нічого не знайдено за запитом "{{ query }}"</p>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-people" style="font-size: 3rem;"></i>
+                        <p class="mt-3">Введіть запит для пошуку користувачів</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
